@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const UsersPage = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -13,41 +14,92 @@ const UsersPage = () => {
     numero: "",
   });
 
+  const [selectedUser, setSelectedUser] = useState(null); // Estado para o usuário selecionado para edição
   const baseUrl = "http://localhost:8080"; // URL da API
 
+  // Função para buscar usuários
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch(`${baseUrl}/Usuario/todos`);
-      if (!response.ok) throw new Error("Erro ao buscar usuários.");
-      const data = await response.json();
-      console.log("Dados recebidos:", data); // Inspecione os dados aqui
-      setUsuarios(data || []); // Garante que sempre será um array
+      const response = await axios.get(`${baseUrl}/Usuario/todos`);
+      console.log("Dados recebidos:", response.data); // Inspecione os dados aqui
+      setUsuarios(response.data || []); // Garante que sempre será um array
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
     }
   };
-  
 
   // Função para cadastrar um novo usuário
   const cadastrarUsuario = async (userPayload) => {
     try {
-      const response = await fetch(`${baseUrl}/Usuario/cadastra`, {
-        method: "POST",
+      const response = await axios.post(`${baseUrl}/Usuario/cadastra`, userPayload, {
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPayload),
       });
 
-      if (!response.ok) throw new Error("Erro ao cadastrar usuário.");
+      if (response.status === 200 || response.status === 201) {
+        const newUser = response.data; // Aqui a resposta deve conter o ID do usuário
+        alert(`Usuário cadastrado com sucesso! ID: ${newUser.id}`);
+      }
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);
-      throw error;
+      alert("Erro ao cadastrar usuário.");
     }
   };
 
-  // Chamada inicial para buscar usuários
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
+  // Função para buscar um usuário específico e preencher o formulário
+  const fetchUserToUpdate = async (id) => {
+    try {
+      const response = await axios.get(`${baseUrl}/Usuario/${id}`);
+      setSelectedUser(response.data);
+      setFormData({
+        nome: response.data.nome,
+        email: response.data.email,
+        telefone: response.data.telefone,
+        logradouro: response.data.endereco.logradouro,
+        cep: response.data.endereco.cep,
+        bairro: response.data.endereco.bairro,
+        cidade: response.data.endereco.cidade,
+        numero: response.data.endereco.numero,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuário para atualização:", error);
+    }
+  };
+
+  // Função para atualizar o usuário
+  const atualizarUsuario = async (userPayload) => {
+    try {
+      const response = await axios.put(`${baseUrl}/Usuario/${selectedUser.id}`,
+        userPayload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Usuário atualizado com sucesso!");
+        await fetchUsuarios(); // Recarregar a lista de usuários
+        setSelectedUser(null); // Limpar a seleção
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      alert("Erro ao atualizar usuário.");
+    }
+  };
+
+  // Função para deletar o usuário
+  const deletarUsuario = async (id) => {
+    try {
+      const response = await axios.delete(`${baseUrl}/Usuario/${id}`);
+
+      if (response.status === 200) {
+        alert("Usuário deletado com sucesso!");
+        await fetchUsuarios(); // Recarregar a lista de usuários
+      }
+    } catch (error) {
+      console.error("Erro ao deletar usuário:", error);
+      alert("Erro ao deletar usuário.");
+    }
+  };
 
   // Manipula as mudanças nos inputs
   const handleInputChange = (e) => {
@@ -55,9 +107,10 @@ const UsersPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Manipula a submissão do formulário para criar um novo usuário
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const userPayload = {
       nome: formData.nome,
       email: formData.email,
@@ -70,7 +123,7 @@ const UsersPage = () => {
         numero: formData.numero,
       },
     };
-  
+
     try {
       await cadastrarUsuario(userPayload);
       alert("Usuário cadastrado com sucesso!");
@@ -89,7 +142,38 @@ const UsersPage = () => {
       alert("Erro ao cadastrar usuário.");
     }
   };
-  
+
+  // Manipula a mudança nos inputs para edição de usuário
+  const handleUpdateInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedUser({ ...selectedUser, [name]: value });
+  };
+
+  // Manipula a submissão do formulário para editar um usuário
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+
+    const userPayload = {
+      nome: selectedUser.nome,
+      email: selectedUser.email,
+      telefone: selectedUser.telefone,
+      endereco: {
+        logradouro: selectedUser.endereco.logradouro,
+        cep: selectedUser.endereco.cep,
+        bairro: selectedUser.endereco.bairro,
+        cidade: selectedUser.endereco.cidade,
+        numero: selectedUser.endereco.numero,
+      },
+    };
+
+    atualizarUsuario(userPayload);
+  };
+
+  // Chamada inicial para buscar usuários
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
+
   return (
     <div className="container">
       <header>
@@ -97,8 +181,9 @@ const UsersPage = () => {
       </header>
 
       <main>
-        <form onSubmit={handleSubmit}>
-          <h2>Cadastrar Usuário</h2>
+        {/* Formulário para cadastro ou edição */}
+        <form onSubmit={selectedUser ? handleUpdateSubmit : handleSubmit}>
+          <h2>{selectedUser ? "Editar Usuário" : "Cadastrar Usuário"}</h2>
 
           <div className="form-group">
             <label htmlFor="nome">Nome:</label>
@@ -198,34 +283,39 @@ const UsersPage = () => {
             />
           </div>
 
-          <button type="submit">Cadastrar</button>
+          <button type="submit">{selectedUser ? "Atualizar" : "Cadastrar"}</button>
         </form>
 
         <h2>Lista de Usuários</h2>
         <table>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nome</th>
               <th>Email</th>
               <th>Telefone</th>
               <th>Endereço</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(usuarios) && usuarios.length > 0 ? (
-              usuarios.map((usuario, index) => (
-                <tr key={index}>
+              usuarios.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td>{usuario.id}</td>
                   <td>{usuario.nome}</td>
                   <td>{usuario.email}</td>
                   <td>{usuario.telefone}</td>
+                  <td>{`${usuario.endereco.logradouro}, ${usuario.endereco.numero} - ${usuario.endereco.bairro}, ${usuario.endereco.cidade}`}</td>
                   <td>
-                    {`${usuario.endereco.logradouro}, ${usuario.endereco.numero} - ${usuario.endereco.bairro}, ${usuario.endereco.cidade}`}
+                    <button onClick={() => fetchUserToUpdate(usuario.id)}>Editar</button>
+                    <button onClick={() => deletarUsuario(usuario.id)}>Deletar</button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4">Nenhum usuário encontrado.</td>
+                <td colSpan="6">Nenhum usuário encontrado.</td>
               </tr>
             )}
           </tbody>

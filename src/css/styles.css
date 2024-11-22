@@ -38,7 +38,7 @@ h1 {
 .dashboard__image {
   display: block;
   margin: 10px auto; /* Centraliza a imagem horizontalmente */
-  max-width: 50%; /* Garante que a imagem não ultrapasse a largura da tela */
+  max-width: 30%; /* Garante que a imagem não ultrapasse a largura da tela */
   height: auto; /* Mantém a proporção da imagem */
 }
 

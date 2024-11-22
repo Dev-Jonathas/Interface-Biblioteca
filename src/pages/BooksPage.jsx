@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../css/styles.css"; // Importe o arquivo CSS
+import axios from "axios";
 
 const BooksPage = () => {
   const baseUrl = "http://localhost:8080/Livro"; // Substitua pela URL do seu backend
@@ -25,7 +26,7 @@ const BooksPage = () => {
     const livro = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch(`${baseUrl}/registra`, {
+      const response = await axios(`${baseUrl}/registra`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(livro),
@@ -49,7 +50,7 @@ const BooksPage = () => {
   // Função para listar livros e exibir tabela
   const listarLivros = async () => {
     try {
-      const response = await fetch(`${baseUrl}/todos`);
+      const response = await axios(`${baseUrl}/todos`);
       if (response.ok) {
         const data = await response.json();
         setLivros(data);
@@ -77,7 +78,7 @@ const BooksPage = () => {
     );
 
     try {
-      const response = await fetch(`${baseUrl}/${id}`, {
+      const response = await axios(`${baseUrl}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dadosFiltrados),
@@ -110,7 +111,7 @@ const BooksPage = () => {
     const id = e.target.livroId.value;
 
     try {
-      const response = await fetch(`${baseUrl}/${id}`, {
+      const response = await axios(`${baseUrl}/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -125,7 +126,7 @@ const BooksPage = () => {
   };
 
   return (
-    <div className="container">
+    <div class="container">
       <h1>Gerenciamento de Livros</h1>
 
       {/* Mensagem de resposta */}

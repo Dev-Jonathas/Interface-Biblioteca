@@ -1,11 +1,14 @@
 /* UsersPage.css */
-
+body{
+  background-color: #ddebd9;
+}
 /* Estilo geral da página */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 10px;
   font-family: Arial, sans-serif;
+  
 }
 
 /* Cabeçalho da página */
@@ -44,6 +47,7 @@ form {
 }
 
 
+
 label {
   font-size: 1rem;
   margin-bottom: 10px;
@@ -56,9 +60,9 @@ input {
   padding: 8px; /* Menor padding */
   margin-bottom: 8px; /* Menor espaço entre os campos */
   font-size: 0.95rem; /* Tamanho da fonte reduzido */
-  border: 1px solid #ddd;
+  border: 1px solid #616161;
   border-radius: 4px;
-  width: 20%;
+  width: 23%;
 }
 
 button[type="submit"] {
@@ -82,6 +86,7 @@ button[type="submit"]:hover {
 /* Lista de usuários */
 .user-list-container {
   margin-top: 50px;
+  background-color: #f9f9f9;;
 }
 
 table {
@@ -93,11 +98,11 @@ table {
 th, td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 2px solid #ddd;
 }
 
 th {
-  background-color: #f4f4f4;
+  background-color: #f9f9f9;
   font-weight: bold;
 }
 
@@ -110,7 +115,7 @@ button {
   border-radius: 4px;
   transition: background-color 0.3s;
   font-size: 0.9rem;
-  margin-right: 8px; /* Separando os botões */
+  margin-right: 8px; 
 }
 
 button:hover{
@@ -128,6 +133,7 @@ button:hover{
   font-size: 0.9rem;
   margin-right: 8px; /* Separando os botões */
   background-color: #db5957;
+  
 }
 
 .delete:hover{
@@ -145,11 +151,29 @@ button:hover{
   margin-top: 10px;
   margin-left: auto;
   margin-right: auto;
+  
+}
+
+.cancelar {
+  background-color: #db5957;
+}
+
+.cancelar:hover {
+  background-color: hsl(0, 75%, 45%);
 }
 
 button:focus {
   outline: none;
 }
+
+.button-container {
+  display: flex; /* Usando flexbox para alinhar os botões horizontalmente */
+  gap: 10px; /* Espaço entre os botões */
+  justify-content: center; /* Centraliza os botões horizontalmente */
+  margin-top: 20px; /* Distância do topo, pode ser ajustada conforme necessário */
+}
+
+
 
 
 /* Responsividade */

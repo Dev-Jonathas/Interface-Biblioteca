@@ -161,11 +161,15 @@ const UsersPage = () => {
 
   return (
     <div className="container">
-      <h2>Gerenciamento Biblioteca</h2>
-      <h3>Cadastro de Usuário</h3>
+
+      <header style={{marginBottom: '15px',}} className="header">
+        <h1 className="header__title">Gerenciamento de Biblioteca</h1>
+      </header>
+      
       {/* Formulário de Cadastro */}
       <div className="form-container">
         <form onSubmit={cadastrarUsuario}>
+        <h3 >Cadastro de Usuário</h3>
           <label>Nome: </label>
           <input
             type="text"
@@ -212,6 +216,7 @@ const UsersPage = () => {
               onChange={(e) => setCep(e.target.value)}
               required
             />
+        
             <label style={{ marginLeft: '10px' }}>Bairro: </label>
             <input
               type="text"
@@ -220,7 +225,7 @@ const UsersPage = () => {
               onChange={(e) => setBairro(e.target.value)}
               required
             />
-          </div>
+        </div>
 
           <div className="form-row">
             <label style={{ marginRight: '5px' }}>Cidade:</label>
@@ -282,7 +287,7 @@ const UsersPage = () => {
       {/* Modal de Edição */}
       {showModal && (
         <div className="form-container">
-          <h3>Editar Usuário</h3>
+          <h3 style={{ backgroundColor: '#4CAF50',  padding: '8px', color: 'WHITE', borderRadius: '8px', border: '2px solid black', }}>Editar Usuário</h3>
           <form onSubmit={atualizarUsuario}>
             <label>Nome: </label>
             <input
@@ -355,8 +360,10 @@ const UsersPage = () => {
                 required
               />
               </div>
+              <div className="button-container">
               <button type="submit">Salvar</button>
               <button className='cancelar' type="button" onClick={fecharModal}>Cancelar</button>
+              </div>
           </form>
         </div>
       )}

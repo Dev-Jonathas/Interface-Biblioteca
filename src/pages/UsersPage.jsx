@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import "../css/UsersPage.css";
 
 const UsersPage = () => {
   // Estado para armazenar os dados dos usuários
   const [usuarios, setUsuarios] = useState([]);
-  
+
   // Estado para o cadastro de novo usuário
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ const UsersPage = () => {
   // Função para obter usuários da API
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch('http://localhost:8080/Usuario/todos');  // Substitua pela URL correta da sua API
+      const response = await fetch('http://localhost:8080/Usuario/todos');
       const data = await response.json();
       setUsuarios(data);
     } catch (error) {
@@ -66,7 +67,7 @@ const UsersPage = () => {
         },
         body: JSON.stringify(novoUsuario),
       });
-      
+
       if (response.ok) {
         fetchUsuarios(); // Atualizar a lista de usuários após o cadastro
         setNome('');
@@ -109,7 +110,7 @@ const UsersPage = () => {
         },
         body: JSON.stringify(updatedUsuario),
       });
-      
+
       if (response.ok) {
         fetchUsuarios(); // Atualizar a lista de usuários após a atualização
         setShowModal(false);
@@ -127,7 +128,7 @@ const UsersPage = () => {
       const response = await fetch(`http://localhost:8080/Usuario/${id}`, {
         method: 'DELETE',
       });
-      
+
       if (response.ok) {
         fetchUsuarios(); // Atualizar a lista de usuários após a exclusão
       } else {
@@ -160,84 +161,97 @@ const UsersPage = () => {
 
   return (
     <div className="container">
-      <h1>Gerenciador de Biblioteca</h1>
-
+      <h2>Gerenciamento Biblioteca</h2>
+      <h3>Cadastro de Usuário</h3>
       {/* Formulário de Cadastro */}
       <div className="form-container">
-        <h2>Cadastro de Usuário</h2>
         <form onSubmit={cadastrarUsuario}>
-          <label htmlFor="nome">Nome:</label>
+          <label>Nome: </label>
           <input
             type="text"
-            id="nome"
+            placeholder="Nome"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             required
           />
-          <label htmlFor="email">Email:</label>
+          <label>Email:</label>
           <input
             type="email"
-            id="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <label htmlFor="telefone">Telefone:</label>
+          <label>Telefone: </label>
           <input
             type="tel"
-            id="telefone"
+            placeholder="Telefone"
             value={telefone}
             onChange={(e) => setTelefone(e.target.value)}
             required
           />
-          <h3>Endereço</h3>
-          <label htmlFor="logradouro">Logradouro:</label>
-          <input
-            type="text"
-            id="logradouro"
-            value={logradouro}
-            onChange={(e) => setLogradouro(e.target.value)}
-            required
-          />
-          <label htmlFor="cep">CEP:</label>
-          <input
-            type="text"
-            id="cep"
-            value={cep}
-            onChange={(e) => setCep(e.target.value)}
-            required
-          />
-          <label htmlFor="bairro">Bairro:</label>
-          <input
-            type="text"
-            id="bairro"
-            value={bairro}
-            onChange={(e) => setBairro(e.target.value)}
-            required
-          />
-          <label htmlFor="cidade">Cidade:</label>
-          <input
-            type="text"
-            id="cidade"
-            value={cidade}
-            onChange={(e) => setCidade(e.target.value)}
-            required
-          />
-          <label htmlFor="numero">Número:</label>
-          <input
-            type="text"
-            id="numero"
-            value={numero}
-            onChange={(e) => setNumero(e.target.value)}
-            required
-          />
+
+
+          {/* Mover o Título Endereço para baixo e ajustar campos */}
+          <h4>Endereço</h4>
+
+          <div className="form-row">
+            <label>Logradouro: </label>
+            <input
+              type="text"
+              placeholder="Logradouro"
+              value={logradouro}
+              onChange={(e) => setLogradouro(e.target.value)}
+              required
+            />
+            <label style={{ marginLeft: '10px', marginRight: '5px' }}>CEP:</label>
+            <input
+              type="text"
+              placeholder="CEP"
+              value={cep}
+              onChange={(e) => setCep(e.target.value)}
+              required
+            />
+            <label style={{ marginLeft: '10px' }}>Bairro: </label>
+            <input
+              type="text"
+              placeholder="Bairro"
+              value={bairro}
+              onChange={(e) => setBairro(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-row">
+            <label style={{ marginRight: '5px' }}>Cidade:</label>
+            <input
+              type="text"
+              placeholder="Cidade"
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              required
+            />
+
+
+            <label style={{ marginLeft: '10px', marginRight: '5px' }}>Número:</label>
+            <input
+              type="text"
+              placeholder="Número"
+              value={numero}
+              onChange={(e) => setNumero(e.target.value)}
+              required
+            />
+          </div>
           <button type="submit">Cadastrar</button>
         </form>
       </div>
 
+
+
+
       {/* Lista de Usuários */}
       <div className="user-list-container">
-        <h2>Lista de Usuários</h2>
+        <h3>Lista de Usuários</h3>
         <table>
           <thead>
             <tr>
@@ -257,7 +271,7 @@ const UsersPage = () => {
                 <td>{`${usuario.endereco.logradouro}, ${usuario.endereco.bairro}, ${usuario.endereco.cidade}`}</td>
                 <td>
                   <button onClick={() => abrirModal(usuario.id)}>Editar</button>
-                  <button onClick={() => deletarUsuario(usuario.id)}>Deletar</button>
+                  <button className='delete' onClick={() => deletarUsuario(usuario.id)}>Deletar</button>
                 </td>
               </tr>
             ))}
@@ -267,79 +281,83 @@ const UsersPage = () => {
 
       {/* Modal de Edição */}
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Editar Usuário</h2>
-            <form onSubmit={atualizarUsuario}>
-              <label htmlFor="novoNome">Nome:</label>
+        <div className="form-container">
+          <h3>Editar Usuário</h3>
+          <form onSubmit={atualizarUsuario}>
+            <label>Nome: </label>
+            <input
+              type="text"
+              placeholder="Nome"
+              value={novoNome}
+              onChange={(e) => setNovoNome(e.target.value)}
+              required
+            />
+            <label>E-mail: </label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={novoEmail}
+              onChange={(e) => setNovoEmail(e.target.value)}
+              required
+            />
+            <label>Telefone: </label>
+            <input
+              type="tel"
+              placeholder="Telefone"
+              value={novoTelefone}
+              onChange={(e) => setNovoTelefone(e.target.value)}
+              required
+            />
+
+            <h4>Endereço</h4>
+            <div className="form-row">
+              <label>Logradouro: </label>
               <input
                 type="text"
-                id="novoNome"
-                value={novoNome}
-                onChange={(e) => setNovoNome(e.target.value)}
-                required
-              />
-              <label htmlFor="novoEmail">Email:</label>
-              <input
-                type="email"
-                id="novoEmail"
-                value={novoEmail}
-                onChange={(e) => setNovoEmail(e.target.value)}
-                required
-              />
-              <label htmlFor="novoTelefone">Telefone:</label>
-              <input
-                type="tel"
-                id="novoTelefone"
-                value={novoTelefone}
-                onChange={(e) => setNovoTelefone(e.target.value)}
-                required
-              />
-              <h3>Endereço</h3>
-              <label htmlFor="novoLogradouro">Logradouro:</label>
-              <input
-                type="text"
-                id="novoLogradouro"
+                placeholder="Logradouro"
                 value={novoLogradouro}
                 onChange={(e) => setNovoLogradouro(e.target.value)}
                 required
               />
-              <label htmlFor="novoCep">CEP:</label>
+              <label style={{ marginLeft: '10px', marginRight: '5px' }}>CEP:</label>
               <input
                 type="text"
-                id="novoCep"
+                placeholder="CEP"
                 value={novoCep}
                 onChange={(e) => setNovoCep(e.target.value)}
                 required
               />
-              <label htmlFor="novoBairro">Bairro:</label>
+              <label style={{ marginLeft: '10px' }}>Bairro: </label>
               <input
                 type="text"
-                id="novoBairro"
+                placeholder="Bairro"
                 value={novoBairro}
                 onChange={(e) => setNovoBairro(e.target.value)}
                 required
               />
-              <label htmlFor="novoCidade">Cidade:</label>
+              </div>
+
+              <div className="form-row">
+              <label style={{ marginRight: '5px' }}>Cidade:</label>
               <input
                 type="text"
-                id="novoCidade"
+                placeholder="Cidade"
                 value={novoCidade}
                 onChange={(e) => setNovoCidade(e.target.value)}
                 required
               />
-              <label htmlFor="novoNumero">Número:</label>
+              <label style={{ marginLeft: '10px', marginRight: '5px' }}>Número:</label>
               <input
                 type="text"
-                id="novoNumero"
+                placeholder="Número"
                 value={novoNumero}
                 onChange={(e) => setNovoNumero(e.target.value)}
                 required
               />
+              </div>
               <button type="submit">Salvar</button>
-              <button type="button" onClick={fecharModal}>Cancelar</button>
-            </form>
-          </div>
+              <button className='cancelar' type="button" onClick={fecharModal}>Cancelar</button>
+          </form>
         </div>
       )}
     </div>

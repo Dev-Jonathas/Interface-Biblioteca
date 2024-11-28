@@ -169,7 +169,7 @@ const UsersPage = () => {
       {/* Formulário de Cadastro */}
       <div className="form-container">
         <form onSubmit={cadastrarUsuario}>
-        <h3 >Cadastro de Usuário</h3>
+        <h3>Cadastro de Usuário</h3>
           <label>Nome: </label>
           <input
             type="text"
@@ -256,10 +256,11 @@ const UsersPage = () => {
 
       {/* Lista de Usuários */}
       <div className="user-list-container">
-        <h3>Lista de Usuários</h3>
+        <h3 style={{padding: "20px",}}>Lista de Usuários</h3>
         <table>
           <thead>
             <tr>
+              <th>ID do Usuário</th>
               <th>Nome</th>
               <th>Email</th>
               <th>Telefone</th>
@@ -270,6 +271,7 @@ const UsersPage = () => {
           <tbody>
             {usuarios.map((usuario) => (
               <tr key={usuario.id}>
+                <td>{usuario.id}</td>
                 <td>{usuario.nome}</td>
                 <td>{usuario.email}</td>
                 <td>{usuario.telefone}</td>

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 
 const ReportPage = () => {
   const [mostBorrowedBooks, setMostBorrowedBooks] = useState([]);
-  const [usersWithPendingLoans, setUsersWithPendingLoans] = useState([]);
+  const [userId, setUserId] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Função para buscar os dados do relatório
@@ -11,16 +10,33 @@ const ReportPage = () => {
     const fetchReports = async () => {
       try {
         // Endpoint para livros mais emprestados
-        const booksResponse = await axios.get(
-          "http://localhost:8080/relatorio/livros-mais-emprestados"
+        const booksResponse = await fetch(
+          "http://localhost:8080/Livro/maisEmprestado"
         );
-        setMostBorrowedBooks(booksResponse.data);
+
+        if (!booksResponse.ok) {
+          throw new Error("Erro ao buscar os livros mais emprestados");
+        }
+
+        const booksData = await booksResponse.json();
+        setMostBorrowedBooks(booksData);
 
         // Endpoint para usuários com empréstimos pendentes
-        const usersResponse = await axios.get(
-          "http://localhost:8080/relatorio/usuarios-com-emprestimos-pendentes"
+        const usersResponse = await fetch(
+          "http://localhost:8080/Emprestimo/todos"
         );
-        setUsersWithPendingLoans(usersResponse.data);
+
+        if (!usersResponse.ok) {
+          throw new Error("Erro ao buscar os usuários com empréstimos pendentes");
+        }
+
+        const usersData = await usersResponse.json();
+
+        // Filtra os usuários para exibir apenas os com status EM_ATRASO
+        const filteredUsers = usersData.filter(
+          (user) => user.usuario.status === "EM_ATRASO"
+        );
+        setUserId(filteredUsers);
 
         setLoading(false);
       } catch (error) {
@@ -30,8 +46,9 @@ const ReportPage = () => {
     };
 
     fetchReports();
-  }, []);
+  }, []); // Dependência vazia significa que isso será executado apenas uma vez
 
+  // Exibir mensagem de carregamento enquanto os dados são buscados
   if (loading) {
     return <p>Carregando relatórios...</p>;
   }
@@ -46,6 +63,7 @@ const ReportPage = () => {
         <table>
           <thead>
             <tr>
+              <th>ID do Livro</th>
               <th>Título</th>
               <th>Autor</th>
               <th>Quantidade de Empréstimos</th>
@@ -55,14 +73,15 @@ const ReportPage = () => {
             {mostBorrowedBooks.length > 0 ? (
               mostBorrowedBooks.map((book) => (
                 <tr key={book.id}>
+                  <td>{book.id}</td>
                   <td>{book.titulo}</td>
                   <td>{book.autor}</td>
-                  <td>{book.qtdEmprestado}</td> {/* Ajustado para `qtdEmprestado` */}
+                  <td>{book.qtdEmprestado}</td> {/* Ajustado para qtdEmprestado */}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="3">Nenhum dado disponível.</td>
+                <td colSpan="4">Nenhum dado disponível.</td>
               </tr>
             )}
           </tbody>
@@ -75,23 +94,25 @@ const ReportPage = () => {
         <table>
           <thead>
             <tr>
+              <th>ID do Usuário</th>
               <th>Nome</th>
               <th>Email</th>
-              <th>Quantidade de Empréstimos Pendentes</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {usersWithPendingLoans.length > 0 ? (
-              usersWithPendingLoans.map((user) => (
+            {userId.length > 0 ? (
+              userId.map((user) => (
                 <tr key={user.id}>
-                  <td>{user.nome}</td>
-                  <td>{user.email}</td>
-                  <td>{user.emprestimosPendentes}</td> {/* Supondo que a API retorne `emprestimosPendentes` */}
+                  <td>{user.usuario.id}</td> {/* ID do usuário */}
+                  <td>{user.usuario.nome}</td> {/* Nome do usuário */}
+                  <td>{user.usuario.email}</td> {/* Email do usuário */}
+                  <td>{user.usuario.status}</td> {/* Status do usuário */}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="3">Nenhum dado disponível.</td>
+                <td colSpan="4">Nenhum dado disponível.</td>
               </tr>
             )}
           </tbody>

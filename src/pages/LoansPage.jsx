@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 
 const LoansPage = () => {
-  const baseUrl = "http://localhost:8080/Emprestimo"; // Substitua pela URL do seu backend
+  const baseUrl = "http://localhost:8080/Emprestimo"; // URL do backend
 
   const [loans, setLoans] = useState([]);
   const [userId, setUserId] = useState("");
   const [bookId, setBookId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [loanId, setLoanId] = useState(""); // Para a devolução
+  const [returnDate, setReturnDate] = useState(""); // Data de devolução
   const [message, setMessage] = useState("");
 
   // Função para buscar empréstimos
@@ -15,21 +17,19 @@ const LoansPage = () => {
       const response = await fetch(`${baseUrl}/todos`);
       const data = await response.json();
 
-      // Verificar se 'content' existe e é um array
-      if (response.ok && Array.isArray(data.content)) {
-        setLoans(data.content); // Atualiza o estado com os empréstimos
+      if (response.ok) {
+        setLoans(data);
       } else {
-        setLoans([]); // Se a resposta não tiver 'content' ou se não for um array
-        setMessage("Erro ao buscar empréstimos. Dados inesperados.");
+        setLoans([]);
+        setMessage("Erro ao buscar empréstimos.");
       }
     } catch (error) {
       console.error("Erro ao buscar empréstimos:", error);
-      setLoans([]); // Limpa a lista de empréstimos se houver erro
+      setLoans([]);
       setMessage("Erro ao carregar os empréstimos.");
     }
   };
 
-  // Função para registrar empréstimo
   const handleLoan = async (e) => {
     e.preventDefault();
     try {
@@ -42,6 +42,7 @@ const LoansPage = () => {
           usuarioId: userId,
           livroId: bookId,
           dataLimite: dueDate,
+          status: "PENDENTE",
         }),
       });
 
@@ -50,37 +51,52 @@ const LoansPage = () => {
       } else if (response.status === 400) {
         setMessage("O usuário atingiu o limite de 5 empréstimos!");
       } else {
-        throw new Error("Erro ao registrar empréstimo.");
+        setMessage("Erro ao registrar empréstimo.");
       }
 
       setUserId("");
       setBookId("");
       setDueDate("");
-      fetchLoans(); // Atualiza a lista de empréstimos após o registro
+      fetchLoans();
     } catch (error) {
-      setMessage(error.message);
+      setMessage("Erro ao registrar empréstimo.");
     }
   };
 
-  // Função para devolver livro
-  const handleReturn = async (loanId) => {
+  const handleReturn = async (e) => {
+    e.preventDefault();
+  
+    // Obter a data atual no formato YYYY-MM-DD
+    const currentDate = new Date().toISOString().split("T")[0];
+  
+    if (returnDate < currentDate) {
+      setMessage("A data de devolução não pode ser anterior à data atual.");
+      return;
+    }
+  
     try {
       const response = await fetch(`${baseUrl}/devolucao/${loanId}`, {
-        method: "DELETE",
+        method: "DELETE", // Alterado para POST para incluir data
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dataDevolucao: returnDate, // Envia a data de devolução
+        }),
       });
-
+  
       if (response.ok) {
         setMessage("Livro devolvido com sucesso!");
-        fetchLoans(); // Atualiza a lista de empréstimos após a devolução
+        fetchLoans();
       } else {
-        throw new Error("Erro ao devolver livro.");
+        setMessage("Erro ao devolver livro.");
       }
     } catch (error) {
       console.error("Erro ao devolver livro:", error);
       setMessage("Erro ao devolver livro.");
     }
   };
-
+  
   // Carregar empréstimos ao montar o componente
   useEffect(() => {
     fetchLoans();
@@ -89,7 +105,7 @@ const LoansPage = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Gestão de Empréstimos</h1>
-      {message && <p style={{ color: "red" }}>{message}</p>}
+      {message && <p style={{ color: "green" }}>{message}</p>}
 
       {/* Formulário para registrar empréstimo */}
       <form onSubmit={handleLoan}>
@@ -130,28 +146,22 @@ const LoansPage = () => {
           <thead>
             <tr>
               <th>ID Empréstimo</th>
-              <th>Usuário</th>
-              <th>Livro</th>
-              <th>Data Limite</th>
+              <th>Nome do Livro</th>
+              <th>Nome do Usuário</th>
+              <th>D.empréstimo</th>
+              <th>D.devolução</th>
               <th>Status</th>
-              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {loans.map((loan) => (
               <tr key={loan.id}>
                 <td>{loan.id}</td>
-                <td>{loan.usuarioId}</td>
-                <td>{loan.livroId}</td>
+                <td>{loan.livro.titulo}</td>
+                <td>{loan.usuario.nome}</td>
+                <td>{loan.dataEmprestimo}</td>
                 <td>{loan.dataLimite}</td>
-                <td>{loan.status}</td>
-                <td>
-                  {loan.status === "PENDENTE" && (
-                    <button onClick={() => handleReturn(loan.id)}>
-                      Devolver
-                    </button>
-                  )}
-                </td>
+                <td>{loan.usuario.status}</td>
               </tr>
             ))}
           </tbody>
@@ -159,6 +169,30 @@ const LoansPage = () => {
       ) : (
         <p>Nenhum empréstimo ativo encontrado.</p>
       )}
+
+      {/* Formulário para devolver livro */}
+      <h2>Devolução de Livro</h2>
+      <form onSubmit={handleReturn}>
+        <div>
+          <label>ID Empréstimo:</label>
+          <input
+            type="text"
+            value={loanId}
+            onChange={(e) => setLoanId(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Data de Devolução:</label>
+          <input
+            type="date"
+            value={returnDate}
+            onChange={(e) => setReturnDate(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Devolver Livro</button>
+      </form>
     </div>
   );
 };

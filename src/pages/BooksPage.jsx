@@ -159,7 +159,7 @@ const BooksPage = () => {
               required
               style={{
                 width: "15%",
-                padding: "10px 0px 10px 0px",
+                padding: "10px 0px 10px 5px",
                 marginLeft: "5px",
               }}
             >
@@ -176,7 +176,7 @@ const BooksPage = () => {
               type="date"
               name="dataDePublicacao"
               required
-              style={{ marginLeft: "5px" }}
+              style={{ width: "13%", marginTop: "10px", padding: "5px", marginLeft: "5px" }}
             />
 
             <label style={{ marginLeft: "10px" }}>Estado do Livro:</label>
@@ -185,7 +185,7 @@ const BooksPage = () => {
               required
               style={{
                 width: "12%",
-                padding: "10px 0px 10px 0px",
+                padding: "10px 0px 10px 5px",
                 marginLeft: "5px",
               }}
             >
